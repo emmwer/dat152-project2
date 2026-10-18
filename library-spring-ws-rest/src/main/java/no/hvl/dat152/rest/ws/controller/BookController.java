@@ -68,10 +68,31 @@ public class BookController {
 		return new ResponseEntity<>(nbook, HttpStatus.CREATED);
 	}
 	
-	// TODO - getAuthorsOfBookByISBN (@Mappings, URI, and method)
+	// DONE - getAuthorsOfBookByISBN (@Mappings, URI, and method)
+	@GetMapping("/books/{isbn}/authors")
+	public ResponseEntity<Object> getAuthorsOfBookByISBN(@PathVariable String isbn) throws BookNotFoundException{
+		Set<Author> authors = bookService.findAuthorsOfBookByISBN(isbn);
+		
+		if (authors.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		else {
+			return new ResponseEntity<>(authors, HttpStatus.OK);
+		}	
+	}
 	
-	// TODO - updateBookByISBN (@Mappings, URI, and method)
+	// DONE - updateBookByISBN (@Mappings, URI, and method)
+	@PutMapping("/books/{isbn}")
+	public ResponseEntity<Object> updateBookByISBN(@RequestBody Book book, @PathVariable String isbn) throws BookNotFoundException, UpdateBookFailedException {
+		Book updatedBook = bookService.updateBook(book, isbn);
+		return new ResponseEntity<>(updatedBook, HttpStatus.OK);
+	}
 	
-	// TODO - deleteBookByISBN (@Mappings, URI, and method)
+	// DONE - deleteBookByISBN (@Mappings, URI, and method)
+	@DeleteMapping ("/books/{isbn}")
+	public ResponseEntity<Object> deleteBookByISBN(@PathVariable String isbn) throws BookNotFoundException {
+		bookService.deleteByISBN(isbn);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
 
 }
