@@ -89,7 +89,7 @@ public class UserController {
 	@GetMapping("/users/{userId}/orders/{orderId}")
 	public ResponseEntity<Object> getUserOrder(@PathVariable Long userId, @PathVariable Long orderId) throws UserNotFoundException, OrderNotFoundException {
 		Order order = userService.getUserOrder(userId, orderId);
-		return new ResponseEntity(order, HttpStatus.OK);
+		return new ResponseEntity<>(order, HttpStatus.OK);
 	}
 
 	// DONE - deleteUserOrder (@Mappings, URI, and method)

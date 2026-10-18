@@ -29,16 +29,54 @@ import no.hvl.dat152.rest.ws.service.AuthorService;
 @RequestMapping("/elibrary/api/v1")
 public class AuthorController {
 
-	
-	// TODO - getAllAuthor (@Mappings, URI, and method)
-	
-	// TODO - getAuthor (@Mappings, URI, and method)
-	
-	// TODO - getBooksByAuthorId (@Mappings, URI, and method)
-	
-	// TODO - createAuthor (@Mappings, URI, and method)
-	
-	// TODO - updateAuthor (@Mappings, URI, and method)
+	@Autowired
+	private AuthorService authorService;
 
+	
+	// DONE - getAllAuthor (@Mappings, URI, and method)
+	@GetMapping("/authors")
+	public ResponseEntity<Object> getAllAuthor() {
+		List<Author> authors = authorService.findAll();
+
+		if (authors.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		else {
+			return new ResponseEntity<>(authors, HttpStatus.OK);
+		}
+	}
+	
+	// DONE - getAuthor (@Mappings, URI, and method)
+	@GetMapping("/authors/{id}")
+	public ResponseEntity<Object> getAuthor(@PathVariable int id) throws AuthorNotFoundException {
+		Author author = authorService.findById(id);
+		return new ResponseEntity<>(author, HttpStatus.OK);
+	}
+	
+	// DONE - getBooksByAuthorId (@Mappings, URI, and method)
+	@GetMapping("/authors/{id}/books")
+	public ResponseEntity<Object> getBooksByAuthorId(@PathVariable int id) throws AuthorNotFoundException {
+		Set<Book> books = authorService.findBooksByAuthorId(id);
+		if (books.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		else {
+			return new ResponseEntity<>(books, HttpStatus.OK);
+		}
+	}
+	
+	// DONE - createAuthor (@Mappings, URI, and method)
+	@PostMapping("/authors")
+	public ResponseEntity<Object> createAuthor(@RequestBody Author author) {
+		Author newAuthor = authorService.saveAuthor(author);
+		return new ResponseEntity<>(newAuthor, HttpStatus.CREATED);
+	}
+	
+	// DONE - updateAuthor (@Mappings, URI, and method)
+	@PutMapping("/authors/{id}")
+	public ResponseEntity<Object> updateAuthor(@RequestBody Author author, @PathVariable int id) throws AuthorNotFoundException {
+		Author updatedAuthor = authorService.updateAuthor(author, id);
+		return new ResponseEntity<>(updatedAuthor, HttpStatus.OK);
+	}
 
 }
