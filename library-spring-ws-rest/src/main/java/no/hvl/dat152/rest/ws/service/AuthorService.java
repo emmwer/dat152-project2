@@ -6,6 +6,7 @@ package no.hvl.dat152.rest.ws.service;
 import java.util.List;
 import java.util.Set;
 
+import org.h2.security.auth.AuthConfigException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,21 +33,32 @@ public class AuthorService {
 		return author;
 	}
 	
-	// TODO public saveAuthor(Author author)
+	// DONE - public saveAuthor(Author author)
 	public Author saveAuthor(Author author) {
-		
-		return null;
+		return authorRepository.save(author);
+	}	
+	
+	// DONE - public Author updateAuthor(Author author, int id)
+	public Author updateAuthor(Author author, int id) throws AuthorNotFoundException {
+		Author existingAuthor = authorRepository.findById(id).orElseThrow(() -> new AuthConfigException("Author with id = " + id + " not found!"));
+		existingAuthor.setFirstname(author.getFirstname());
+		existingAuthor.setLastname(author.getLastname());
+		return authorRepository.save(existingAuthor);
 	}
-		
 	
-	// TODO public Author updateAuthor(Author author, int id)
-		
+	// DONE - public List<Author> findAll()
+	public List<Author> findAll() {
+		return (List<Author>) authorRepository.findAll();
+	}
 	
-	// TODO public List<Author> findAll()
-	
-	
-	// TODO public void deleteById(int id) throws AuthorNotFoundException 
+	// DONE - public void deleteById(int id) throws AuthorNotFoundException 
+	public void deleteById(int id) throws AuthorNotFoundException {
+		authorRepository.deleteById(id);
+	}
 
-	
-	// TODO public Set<Book> findBooksByAuthorId(int id)
+	// DONE - public Set<Book> findBooksByAuthorId(int id)
+	public Set<Book> findBooksByAuthorId(int id) throws AuthorNotFoundException {
+		Set<Book> books = findById(id).getBooks();
+		return books;
+	}
 }
