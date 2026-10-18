@@ -40,7 +40,7 @@ public class AuthorService {
 	
 	// DONE - public Author updateAuthor(Author author, int id)
 	public Author updateAuthor(Author author, int id) throws AuthorNotFoundException {
-		Author existingAuthor = authorRepository.findById(id).orElseThrow(() -> new AuthConfigException("Author with id = " + id + " not found!"));
+		Author existingAuthor = findById(id);
 		existingAuthor.setFirstname(author.getFirstname());
 		existingAuthor.setLastname(author.getLastname());
 		return authorRepository.save(existingAuthor);
