@@ -1,9 +1,12 @@
 /**
- * 
+ *
  */
 package no.hvl.dat152.rest.ws.controller;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
@@ -35,6 +38,125 @@ import no.hvl.dat152.rest.ws.service.UserService;
 @RequestMapping("/elibrary/api/v1")
 public class UserController {
 
-	// TODO authority annotation
-	
+    @Autowired
+    private UserService userService;
+
+    // only admin can access /users endpoint
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/users")
+    public ResponseEntity<Object> getUsers(){
+
+        List<User> users = userService.findAllUsers();
+
+        if(users.isEmpty())
+
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        else
+            return new ResponseEntity<>(users, HttpStatus.OK);
+    }
+
+    // only the correct authenticated user or an admin can access /users/{id}
+    @PreAuthorize("hasAuthority('ADMIN') or authentication.details.userid == #id")
+    @GetMapping(value = "/users/{id}")
+    public ResponseEntity<Object> getUser(@PathVariable Long id) throws UserNotFoundException, OrderNotFoundException{
+
+        User user = userService.findUser(id);
+
+        return new ResponseEntity<>(user, HttpStatus.OK);
+
+    }
+
+    // createUser - only admin
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping("/users")
+    public ResponseEntity<Object> createUser(@RequestBody User user) {
+
+        User nuser = userService.saveUser(user);
+
+        return new ResponseEntity<>(nuser, HttpStatus.CREATED);
+    }
+
+    // updateUser - only the correct authenticated user or an admin
+    @PreAuthorize("hasAuthority('ADMIN') or authentication.details.userid == #id")
+    @PutMapping("/users/{id}")
+    public ResponseEntity<Object> updateUser(@RequestBody User user, @PathVariable Long id) throws UserNotFoundException {
+
+        User uuser = userService.updateUser(user, id);
+
+        return new ResponseEntity<>(uuser, HttpStatus.OK);
+    }
+
+    // deleteUser - only the correct authenticated user or an admin
+    @PreAuthorize("hasAuthority('ADMIN') or authentication.details.userid == #id")
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<Object> deleteUser(@PathVariable Long id) throws UserNotFoundException {
+
+        userService.deleteUser(id);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    // getUserOrders - only the correct authenticated user or an admin
+    @PreAuthorize("hasAuthority('ADMIN') or authentication.details.userid == #id")
+    @GetMapping("/users/{id}/orders")
+    public ResponseEntity<Object> getUserOrders(@PathVariable Long id) throws UserNotFoundException {
+
+        Set<Order> orders = userService.getUserOrders(id);
+
+        if(orders.isEmpty())
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        return new ResponseEntity<>(orders, HttpStatus.OK);
+    }
+
+    // getUserOrder - only the correct authenticated user or an admin
+    @PreAuthorize("hasAuthority('ADMIN') or authentication.details.userid == #uid")
+    @GetMapping("/users/{uid}/orders/{oid}")
+    public ResponseEntity<Object> getUserOrder(@PathVariable Long uid, @PathVariable Long oid) throws UserNotFoundException, UnauthorizedOrderActionException {
+
+        Order order = userService.getUserOrder(uid, oid);
+
+        return new ResponseEntity<>(order, HttpStatus.OK);
+    }
+
+    // deleteUserOrder (cancel) - only the correct authenticated user or an admin
+    @PreAuthorize("hasAuthority('ADMIN') or authentication.details.userid == #uid")
+    @DeleteMapping("/users/{uid}/orders/{oid}")
+    public ResponseEntity<Object> deleteUserOrder(@PathVariable Long uid, @PathVariable Long oid) throws UserNotFoundException, UnauthorizedOrderActionException {
+
+        userService.deleteOrderForUser(uid, oid);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    // createUserOrder + HATEOAS links - only the correct authenticated user or an admin
+    @PreAuthorize("hasAuthority('ADMIN') or authentication.details.userid == #id")
+    @PostMapping("/users/{id}/orders")
+    public ResponseEntity<Object> createUserOrder(@PathVariable Long id, @RequestBody Order order) throws UserNotFoundException, UnauthorizedOrderActionException {
+
+        User user = userService.createOrdersForUser(id, order);
+
+        Set<Order> orders = user.getOrders();
+
+        List<Map<String, Object>> response = new ArrayList<>();
+
+        for (Order o : orders) {
+            // links to the endpoints with actions possible on the order resource
+            Link self = linkTo(methodOn(UserController.class).getUserOrder(id, o.getId())).withSelfRel();
+            Link cancel = linkTo(methodOn(UserController.class).deleteUserOrder(id, o.getId())).withRel("cancel order");
+
+            Map<String, Object> om = new LinkedHashMap<>();
+            om.put("id", o.getId());
+            om.put("isbn", o.getIsbn());
+            om.put("expiry", o.getExpiry().toString());
+            om.put("links", List.of(
+                    Map.of("rel", self.getRel().value(), "href", self.getHref()),
+                    Map.of("rel", cancel.getRel().value(), "href", cancel.getHref())));
+
+            response.add(om);
+        }
+
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
 }

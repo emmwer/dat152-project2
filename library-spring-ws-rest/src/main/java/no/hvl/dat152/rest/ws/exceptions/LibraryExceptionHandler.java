@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package no.hvl.dat152.rest.ws.exceptions;
 
@@ -10,33 +10,33 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 /**
- * 
+ *
  */
 @ControllerAdvice
 public class LibraryExceptionHandler {
-	
+
 	/**
 	 * Specific error message
 	 * @param ex
 	 * @return
 	 */
 	@ExceptionHandler(value = BookNotFoundException.class)
-	public ResponseEntity<String> bookNotFound(BookNotFoundException ex) {		
-		
+	public ResponseEntity<String> bookNotFound(BookNotFoundException ex) {
+
 		return new ResponseEntity<>("An error occured: " + ex.getMessage(), HttpStatus.NOT_FOUND);
 	}
-	
+
 	/**
 	 * Specific error message
 	 * @param ex
 	 * @return
 	 */
 	@ExceptionHandler(value = AuthorNotFoundException.class)
-	public ResponseEntity<String> authorNotFound(AuthorNotFoundException ex) {		
-		
+	public ResponseEntity<String> authorNotFound(AuthorNotFoundException ex) {
+
 		return new ResponseEntity<>("An error occured: " + ex.getMessage(), HttpStatus.NOT_FOUND);
 	}
-	
+
 	/**
 	 * Specific error message for update
 	 * @param ex
@@ -44,32 +44,32 @@ public class LibraryExceptionHandler {
 	 */
 	@ExceptionHandler(value = UpdateBookFailedException.class)
 	public ResponseEntity<String> updateBookFailed(UpdateBookFailedException ex) {
-		
+
 		return new ResponseEntity<>("An error occured: " + ex.getMessage(), HttpStatus.NOT_MODIFIED);
 	}
-	
+
 	/**
-	 * Specific error message for update
+	 * Specific error message
 	 * @param ex
 	 * @return
 	 */
 	@ExceptionHandler(value = OrderNotFoundException.class)
 	public ResponseEntity<String> orderFailed(OrderNotFoundException ex) {
-		
-		return new ResponseEntity<>("An error occured: " + ex.getMessage(), HttpStatus.NOT_MODIFIED);
+
+		return new ResponseEntity<>("An error occured: " + ex.getMessage(), HttpStatus.NOT_FOUND);
 	}
-	
+
 	/**
-	 * Specific error message for update
+	 * Specific error message
 	 * @param ex
 	 * @return
 	 */
 	@ExceptionHandler(value = UserNotFoundException.class)
 	public ResponseEntity<String> userFailed(UserNotFoundException ex) {
-		
-		return new ResponseEntity<>("An error occured: " + ex.getMessage(), HttpStatus.NOT_MODIFIED);
+
+		return new ResponseEntity<>("An error occured: " + ex.getMessage(), HttpStatus.NOT_FOUND);
 	}
-	
+
 	/**
 	 * All other types of error
 	 * @param ex
@@ -77,8 +77,8 @@ public class LibraryExceptionHandler {
 	 */
 	@ExceptionHandler(value = Exception.class)
 	public ResponseEntity<String> otherErrors(Exception ex) {
-			
+
 		return new ResponseEntity<>("An error occured: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
-	
+
 }
