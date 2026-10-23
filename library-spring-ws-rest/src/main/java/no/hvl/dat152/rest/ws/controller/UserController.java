@@ -101,12 +101,12 @@ public class UserController {
 	
 	// DONE - createUserOrder (@Mappings, URI, and method) + HATEOAS links
 	@PostMapping("/users/{userId}/orders")
-	public ResponseEntity<Object> createUserOrder(@PathVariable Long userId, @RequestBody Order order) throws UserNotFoundException {
-		Order newOrder = userService.createOrdersForUser(userId, order);
-		Link selfLink = linkTo(methodOn(UserController.class).getUserOrder(userId, newOrder.getId())).withSelfRel();
+	public ResponseEntity<Object> createUserOrder(@PathVariable Long userId, @RequestBody Order order) throws UserNotFoundException, OrderNotFoundException {
+		userService.createOrdersForUser(userId, order);
+		Link selfLink = linkTo(methodOn(UserController.class).getUserOrder(userId, order.getId())).withSelfRel();
 		Link userLink = linkTo(methodOn(UserController.class).getUser(userId)).withRel("user");
-		newOrder.add(selfLink, userLink);
-		return new ResponseEntity<>(newOrder, HttpStatus.CREATED);
+		order.add(selfLink, userLink);
+		return new ResponseEntity<>(order, HttpStatus.CREATED);
 	}
 
 	
