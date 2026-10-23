@@ -94,6 +94,7 @@ public class BookController {
     }
 
     // deleteBookByISBN
+    @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/books/{isbn}")
     public ResponseEntity<Object> deleteBookByISBN(@PathVariable String isbn) throws BookNotFoundException {
 
