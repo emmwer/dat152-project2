@@ -92,7 +92,7 @@ public class BookController {
 	@DeleteMapping ("/books/{isbn}")
 	public ResponseEntity<Object> deleteBookByISBN(@PathVariable String isbn) throws BookNotFoundException {
 		bookService.deleteByISBN(isbn);
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 }

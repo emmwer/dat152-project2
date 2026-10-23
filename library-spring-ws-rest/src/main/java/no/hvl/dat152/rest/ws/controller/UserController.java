@@ -71,11 +71,11 @@ public class UserController {
 		return new ResponseEntity<>(updatedUser, HttpStatus.OK);
 	}
 	
-	// DONE - deleteUser (@Mappings, URI, and method)
+	// FIX - deleteUser (@Mappings, URI, and method)
 	@DeleteMapping("/users/{id}")
 	public ResponseEntity<Object> deleteUser(@PathVariable Long id) throws UserNotFoundException {
 		userService.deleteUser(id);
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	// DONE - getUserOrders (@Mappings, URI=/users/{id}/orders, and method)
@@ -92,11 +92,11 @@ public class UserController {
 		return new ResponseEntity<>(order, HttpStatus.OK);
 	}
 
-	// DONE - deleteUserOrder (@Mappings, URI, and method)
+	// FIX - deleteUserOrder (@Mappings, URI, and method)
 	@DeleteMapping("/users/{userId}/orders/{orderId}")
 	public ResponseEntity<Object> deleteUserOrder(@PathVariable Long userId, @PathVariable Long orderId) throws UserNotFoundException, OrderNotFoundException {
 		userService.deleteOrderForUser(userId, orderId);
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
 	// DONE - createUserOrder (@Mappings, URI, and method) + HATEOAS links

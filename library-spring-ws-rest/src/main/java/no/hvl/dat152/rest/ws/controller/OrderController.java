@@ -70,7 +70,7 @@ public class OrderController {
 	@DeleteMapping("/orders/{id}")
 	public ResponseEntity<Object> deleteBookOrder(@PathVariable Long id) throws OrderNotFoundException {
 		orderService.deleteOrder(id);
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
 }
