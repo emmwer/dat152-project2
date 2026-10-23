@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package no.hvl.dat152.rest.ws.service;
 
@@ -23,43 +23,59 @@ public class OrderService {
 
 	@Autowired
 	private OrderRepository orderRepository;
-	
+
 	public Order saveOrder(Order order) {
-		
+
 		order = orderRepository.save(order);
-		
+
 		return order;
 	}
-	
+
 	public Order findOrder(Long id) throws OrderNotFoundException {
-		
+
 		Order order = orderRepository.findById(id)
 				.orElseThrow(()-> new OrderNotFoundException("Order with id: "+id+" not found in the order list!"));
-		
+
 		return order;
 	}
-	
-	// DONE - public void deleteOrder(Long id)
+
+	// deleteOrder
 	public void deleteOrder(Long id) throws OrderNotFoundException {
+
 		Order order = findOrder(id);
 		orderRepository.delete(order);
-
 	}
-	
-	// DONE - public List<Order> findAllOrders()
+
+	// findAllOrders
 	public List<Order> findAllOrders() {
+
 		return orderRepository.findAll();
 	}
-	
-	// DONE - public List<Order> findByExpiryDate(LocalDate expiry, Pageable page)
-	public List<Order> findByExpiryDate(LocalDate expiry, Pageable page) {
-		List<Order> orders = orderRepository.findByExpiryBefore(expiry, page).toList();
-		return orders;
+
+	// findAllOrders with pagination
+	public List<Order> findAllOrders(Pageable pageable) {
+
+		Page<Order> orders = orderRepository.findAll(pageable);
+
+		return orders.getContent();
 	}
-	// DONE - public Order updateOrder(Order order, Long id)
-	public Order updateOrder(Order order, Long id) throws OrderNotFoundException{
-		Order existingOrder = findOrder(id);
-		existingOrder.setExpiry(order.getExpiry());
-		return orderRepository.save(existingOrder);
+
+	// findOrdersByExpiryDate
+	public List<Order> findOrdersByExpiryDate(LocalDate expiry, Pageable pageable) {
+
+		Page<Order> orders = orderRepository.findByExpiryBefore(expiry, pageable);
+
+		return orders.getContent();
 	}
+
+	// updateOrder
+	public Order updateOrder(Order order, Long id) throws OrderNotFoundException {
+
+		Order updateOrder = findOrder(id);
+		updateOrder.setIsbn(order.getIsbn());
+		updateOrder.setExpiry(order.getExpiry());
+
+		return orderRepository.save(updateOrder);
+	}
+
 }

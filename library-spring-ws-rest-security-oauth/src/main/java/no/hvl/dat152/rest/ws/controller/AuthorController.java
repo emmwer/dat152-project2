@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package no.hvl.dat152.rest.ws.controller;
 
@@ -24,12 +24,67 @@ import no.hvl.dat152.rest.ws.model.Book;
 import no.hvl.dat152.rest.ws.service.AuthorService;
 
 /**
- * 
+ *
  */
 @RestController
 @RequestMapping("/elibrary/api/v1")
 public class AuthorController {
 
-	// TODO authority annotation
+    @Autowired
+    private AuthorService authorService;
+
+    // getAllAuthor
+    @GetMapping("/authors")
+    public ResponseEntity<Object> getAllAuthor(){
+
+        List<Author> authors = authorService.findAll();
+
+        if(authors.isEmpty())
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        return new ResponseEntity<>(authors, HttpStatus.OK);
+    }
+
+    // getAuthor
+    @GetMapping("/authors/{id}")
+    public ResponseEntity<Object> getAuthor(@PathVariable long id) throws AuthorNotFoundException {
+
+        Author author = authorService.findById(id);
+
+        return new ResponseEntity<>(author, HttpStatus.OK);
+    }
+
+    // getBooksByAuthorId
+    @GetMapping("/authors/{id}/books")
+    public ResponseEntity<Object> getBooksByAuthorId(@PathVariable long id) {
+
+        Set<Book> books = authorService.findBooksByAuthorId((int) id);
+
+        if(books.isEmpty())
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        return new ResponseEntity<>(books, HttpStatus.OK);
+    }
+
+    // createAuthor - only ADMIN
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping("/authors")
+    public ResponseEntity<Object> createAuthor(@RequestBody Author author) {
+
+        Author nauthor = authorService.saveAuthor(author);
+
+        return new ResponseEntity<>(nauthor, HttpStatus.CREATED);
+    }
+
+    // updateAuthor - only ADMIN
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PutMapping("/authors/{id}")
+    public ResponseEntity<Object> updateAuthor(@RequestBody Author author, @PathVariable long id) throws AuthorNotFoundException {
+
+        Author uauthor = authorService.updateAuthor(author, (int) id);
+
+        return new ResponseEntity<>(uauthor, HttpStatus.OK);
+    }
+
 
 }

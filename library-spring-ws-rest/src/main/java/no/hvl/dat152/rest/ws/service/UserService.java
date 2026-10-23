@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package no.hvl.dat152.rest.ws.service;
 
@@ -27,84 +27,86 @@ public class UserService {
 	private UserRepository userRepository;
 
 	@Autowired
-    private OrderRepository orderRepository;
+	private OrderRepository orderRepository;
 
-	
+
 	public List<User> findAllUsers(){
-		
+
 		List<User> allUsers = (List<User>) userRepository.findAll();
-		
+
 		return allUsers;
 	}
-	
+
 	public User findUser(Long userid) throws UserNotFoundException {
-		
+
 		User user = userRepository.findById(userid)
 				.orElseThrow(()-> new UserNotFoundException("User with id: "+userid+" not found"));
-		
+
 		return user;
 	}
-	
-	
-	// DONE - public User saveUser(User user)
+
+
+	// saveUser
 	public User saveUser(User user) {
+
 		return userRepository.save(user);
 	}
-	
-	// DONE - public void deleteUser(Long id) throws UserNotFoundException 
+
+	// deleteUser
 	public void deleteUser(Long id) throws UserNotFoundException {
+
 		User user = findUser(id);
 		userRepository.delete(user);
 	}
-	
-	// DONE - public User updateUser(User user, Long id)
-	public User updateUser(User user, Long id) throws UserNotFoundException{
-		User existingUser = findUser(id);
-		existingUser.setFirstname(user.getFirstname());
-		existingUser.setLastname(user.getLastname());
-		existingUser.setOrders(user.getOrders());
-		return userRepository.save(existingUser);
+
+	// updateUser
+	public User updateUser(User user, Long id) throws UserNotFoundException {
+
+		User updateUser = findUser(id);
+		updateUser.setFirstname(user.getFirstname());
+		updateUser.setLastname(user.getLastname());
+
+		return userRepository.save(updateUser);
 	}
-	
-	// DONE - public Set<Order> getUserOrders(Long userid) 
-	public Set<Order> getUserOrders(Long userid)  throws UserNotFoundException {
+
+	// getUserOrders
+	public Set<Order> getUserOrders(Long userid) throws UserNotFoundException {
+
 		User user = findUser(userid);
+
 		return user.getOrders();
 	}
-	
-	// DONE - public Order getUserOrder(Long userid, Long oid)
+
+	// getUserOrder
 	public Order getUserOrder(Long userid, Long oid) throws UserNotFoundException, OrderNotFoundException {
+
 		User user = findUser(userid);
-		Set<Order> orders = user.getOrders();
-		for (Order order : orders) {
-			if (order.getId().equals(oid)) {
-				return order;
-			}
-		}
-		throw new OrderNotFoundException("Order with id: " + oid + " not found for user with id: " + userid);
+
+		Order order = user.getOrders().stream()
+				.filter(o -> o.getId().equals(oid))
+				.findFirst()
+				.orElseThrow(() -> new OrderNotFoundException("Order with id: "+oid+" not found for user with id: "+userid));
+
+		return order;
 	}
-	
-	// DONE - public void deleteOrderForUser(Long userid, Long oid)
+
+	// deleteOrderForUser
 	public void deleteOrderForUser(Long userid, Long oid) throws UserNotFoundException, OrderNotFoundException {
+
+		Order order = getUserOrder(userid, oid);
 		User user = findUser(userid);
-		Set<Order> orders = user.getOrders();
-		for (Order order : orders) {
-			if (order.getId().equals(oid)) {
-				orders.remove(order);
-				user.setOrders(orders);
-				userRepository.save(user);
-			}
-			else {
-				throw new OrderNotFoundException("Order with id: " + oid + " not found for user with id: " + userid);
-			}
-		}
+
+		user.removeOrder(order);
+		orderRepository.delete(order);
 	}
-	
-	// DONE - public User createOrdersForUser(Long userid, Order order)
+
+	// createOrdersForUser
 	public User createOrdersForUser(Long userid, Order order) throws UserNotFoundException {
+
 		User user = findUser(userid);
-		Order newOrder = orderRepository.save(order);
-		user.addOrder(newOrder);
+		Order savedOrder = orderRepository.save(order);
+		user.addOrder(savedOrder);
+
 		return userRepository.save(user);
 	}
 }
